@@ -1,5 +1,5 @@
 FROM resin/rpi-nodejs
-RUN apt-get -q update && apt-get install -y bluetooth bluez-utils libbluetooth-dev
+RUN apt-get -q update && apt-get install -y libbluetooth-dev bluetooth bluez-utils
 
 COPY . /app
 
