@@ -2,116 +2,102 @@ var bleacon = require('bleacon');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 var unirest = require('unirest');
+var location = process.env.RPI_LOCATION;
 
 // Start listening for iBeacon broadcast (ONLY iPHONE UUID)
-bleacon.startScanning('8492e75f4fd6469db132043fe94921d8');
+// bleacon.startScanning(['8492e75f4fd6469db132043fe94921d8', 'd0d3fa86ca7645ec9bd96af47e6df205', 'c262deb68d694b548263c9c244b21e8a'], true);
+bleacon.startScanning();
 
 // Store the beacons that are inside
 var insideBeacons = [];
 
-// Temporary
-var majorMattia = 6517;
-var majorSertglu = 10241;
-
 // Discover event
 bleacon.on('discover', function(beacon) {
 
-    if (beacon.proximity == 'immediate') {
+  // Our UUID is composed by the uuid + major + minor
+  var UUID = beacon.uuid + beacon.major.toString() + beacon.minor.toString();
 
-        // Emit event of a near beacon
-        eventEmitter.emit('beaconIsNear', {
-            uuid: beacon.uuid,
-            major: beacon.major,
-            minor: beacon.minor
-        });
+  if (beacon.proximity == 'immediate') {
+
+    // Emit event of a near beacon
+    eventEmitter.emit('beaconIsNear', {
+      UUID: UUID
+    });
 
 
-    } else if (beacon.proximity == 'far') {
+  } else if (beacon.proximity == 'far') {
 
-        // Emit event of a far beacon
-        eventEmitter.emit('beaconIsFar', {
-            uuid: beacon.uuid,
-            major: beacon.major,
-            minor: beacon.minor
-        });
+    // Emit event of a far beacon
+    eventEmitter.emit('beaconIsFar', {
+      UUID: UUID
+    });
 
-    }
+  }
 });
 
 eventEmitter.on('beaconIsNear', function(beacon) {
 
-    // Start situation, nobody is connected
-    if (insideBeacons.length === 0) {
+  // Start situation, nobody is connected
+  if (insideBeacons.length === 0) {
 
-        // Add the beacon to the array of people that is inside
-        insideBeacons.push(beacon);
+    // Add the beacon to the array of people that is inside
+    insideBeacons.push(beacon.UUID);
 
-        // TEMP show the name
-        if (beacon.major == majorMattia) {
-            console.log('Mattia is the first to came in');
-        } else if (beacon.major == majorSertglu) {
-            console.log('Sertglu is the first to came in');
-        }
+    console.log('we have ',insideBeacons);
 
-    }
-    // Somebody was already inside since insideBeacons != 0
-    else {
+    // SEND TO SERVER
+    unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=1')
+      .send()
+      .end(function(response) {
+        console.log(response.code);
+      });
 
-        var isIn = false;
+  }
+  // Somebody was already inside since insideBeacons != 0
+  else {
 
-        insideBeacons.forEach(function(item) {
-            // Check if it wasn't already in
-            if (item.major == beacon.major) {
-                isIn = true;
-            }
+    var isIn = false;
+
+    insideBeacons.forEach(function(insideBeacon) {
+      // Check if it wasn't already in
+      if (insideBeacon == beacon.UUID) {
+        isIn = true;
+      }
+    });
+
+    if (!isIn) {
+
+      console.log('we have ',insideBeacons);
+
+      insideBeacons.push(beacon.UUID);
+
+      // SEND TO SERVER
+      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=1')
+        .send()
+        .end(function(response) {
+          console.log(response.code);
         });
-
-        if (!isIn) {
-            insideBeacons.push(beacon);
-
-            // TEMP show the name
-            if (beacon.major == majorMattia) {
-                console.log('Mattia just came in');
-            } else if (beacon.major == majorSertglu) {
-                console.log('Sertglu just came in');
-            }
-        }
     }
+  }
 });
 
-function checkInside(beacon) {
-    insideBeacons.forEach(function(item) {
-
-        // Check if it wasn't already in
-        if (item.major !== beacon.major) {
-
-            insideBeacons.push(beacon);
-
-            // TEMP show the name
-            if (beacon.major == majorMattia) {
-                console.log('Mattia just came in');
-            } else if (beacon.major == majorSertglu) {
-                console.log('Sertglu just came in');
-            }
-
-        }
-    });
-}
 
 eventEmitter.on('beaconIsFar', function(beacon) {
 
-    insideBeacons.forEach(function(insideBeacon) {
+  insideBeacons.forEach(function(insideBeacon) {
 
-        if (insideBeacon.major == beacon.major && insideBeacon.minor == beacon.minor) {
-            var index = insideBeacons.indexOf(insideBeacon);
-            if (index > -1) {
-                insideBeacons.splice(index, 1);
-            }
-            if (beacon.major == majorMattia) {
-                console.log('BYE Mattia');
-            } else if (beacon.major == majorSertglu) {
-                console.log('BYE Sertglu');
-            }
-        }
-    });
+    if (insideBeacon == beacon.UUID) {
+      var index = insideBeacons.indexOf(insideBeacon);
+      if (index > -1) {
+        insideBeacons.splice(index, 1);
+      }
+      console.log('we have ',insideBeacons);
+      // TODO SEND TO SERVER
+      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=0')
+        .send()
+        .end(function(response) {
+          console.log(response.code);
+        });
+    }
+  });
 });
