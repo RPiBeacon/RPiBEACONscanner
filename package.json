@@ -1,0 +1,29 @@
+{
+  "name": "rpibeacon",
+  "version": "1.0.0",
+  "description": "raspberrypi beacon scanner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RPiBeacon/RPiBEACONscanner.git"
+  },
+  "keywords": [
+    "rpi",
+    "ibeacon",
+    "ble"
+  ],
+  "author": "Mattia Asti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RPiBeacon/RPiBEACONscanner/issues"
+  },
+  "homepage": "https://github.com/RPiBeacon/RPiBEACONscanner",
+  "dependencies": {
+    "bleacon": "^0.2.0",
+    "noble": "^0.3.7",
+    "unirest": "^0.4.0"
+  }
+}
