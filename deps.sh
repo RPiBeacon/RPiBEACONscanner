@@ -2,5 +2,5 @@
 
 set -o errexit
 
-apt-get -q update 
-apt-get install -y libbluetooth-dev bluetooth bluez-utils
+apt-get update 
+apt-get install -y libbluetooth-dev bluetooth bluez-utils bluez usbutils
