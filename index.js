@@ -2,7 +2,7 @@ var bleacon = require('bleacon');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 var unirest = require('unirest');
-var location = process.env.RPI_LOCATION;
+var location = process.env.RESIN_UUID;
 
 // Start listening for iBeacon broadcast (ONLY iPHONE UUID)
 // bleacon.startScanning(['8492e75f4fd6469db132043fe94921d8', 'd0d3fa86ca7645ec9bd96af47e6df205', 'c262deb68d694b548263c9c244b21e8a'], true);
