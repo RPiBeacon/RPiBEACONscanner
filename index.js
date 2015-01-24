@@ -46,7 +46,7 @@ eventEmitter.on('beaconIsNear', function(beacon) {
     console.log('we have ',insideBeacons);
 
     // SEND TO SERVER
-    unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=1')
+    unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
       .send()
       .end(function(response) {
         console.log(response.code);
@@ -72,7 +72,7 @@ eventEmitter.on('beaconIsNear', function(beacon) {
       insideBeacons.push(beacon.UUID);
 
       // SEND TO SERVER
-      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=1')
+      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
         .send()
         .end(function(response) {
           console.log(response.code);
@@ -93,7 +93,7 @@ eventEmitter.on('beaconIsFar', function(beacon) {
       }
       console.log('we have ',insideBeacons);
       // TODO SEND TO SERVER
-      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=1&Direction=0')
+      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=0')
         .send()
         .end(function(response) {
           console.log(response.code);
