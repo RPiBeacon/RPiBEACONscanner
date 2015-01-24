@@ -4,6 +4,7 @@
   "description": "raspberrypi beacon scanner",
   "main": "index.js",
   "scripts": {
+    "preinstall": "bash deps.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "sudo node index.js"
   },
