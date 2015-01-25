@@ -4,7 +4,6 @@
   "description": "raspberrypi beacon scanner",
   "main": "index.js",
   "scripts": {
-    "preinstall": "bash deps.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
@@ -25,9 +24,8 @@
   "homepage": "https://github.com/RPiBeacon/RPiBEACONscanner",
   "dependencies": {
     "bleacon": "^0.2.0",
+    "noble": "^0.3.7",
     "unirest": "^0.4.0"
   },
-  "devDependencies": {
-    "noble": "^0.3.7"
-  }
+  "devDependencies": {}
 }
