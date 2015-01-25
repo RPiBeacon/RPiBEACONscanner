@@ -13,6 +13,7 @@ bleacon.startScanning();
 // Store the beacons that are inside
 var insideBeacons = [];
 
+// Check if a beacon is already inside
 function isAlreadyInside(beacon) {
   var isIn = false;
   insideBeacons.forEach(function(insideBeacon) {
@@ -24,6 +25,7 @@ function isAlreadyInside(beacon) {
   });
 }
 
+// Check the server response TODO something if err
 function checkResponse(response) {
     if (response.code === 200) {
       console.log('Okay ', response.code);
@@ -68,7 +70,7 @@ eventEmitter.on('beaconIsNear', function(beacon) {
     // SEND TO SERVER
     unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
       .send()
-      .end(function(response){
+      .end(function(response) {
         checkResponse(response);
       });
 
@@ -86,7 +88,7 @@ eventEmitter.on('beaconIsNear', function(beacon) {
       // SEND TO SERVER
       unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
         .send()
-        .end(function(response){
+        .end(function(response) {
           checkResponse(response);
         });
     }
@@ -108,7 +110,7 @@ eventEmitter.on('beaconIsFar', function(beacon) {
       // SEND TO SERVER
       unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=0')
         .send()
-        .end(function(response){
+        .end(function(response) {
           checkResponse(response);
         });
     }
