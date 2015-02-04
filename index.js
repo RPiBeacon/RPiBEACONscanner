@@ -4,6 +4,10 @@ var eventEmitter = new events.EventEmitter();
 var unirest = require('unirest');
 var location = process.env.RPI_LOCATION;
 
+var Firebase = require('firebase');
+var fbUrl = 'https://rpibeacon2.firebaseio.com/users/';
+var fb = new Firebase(fbUrl);
+
 console.log('Started... Discovering iBeacons!');
 
 // Start listening for iBeacon broadcast (ONLY iPHONE UUID)
@@ -27,13 +31,33 @@ function isAlreadyInside(beacon) {
 
 // Check the server response TODO something if err
 function checkResponse(response) {
-    if (response.code === 200) {
-      console.log('Okay ', response.code);
-    } else {
-      console.log('There was an error: ', response.code);
-    }
+  if (response.code === 200) {
+    console.log('Okay ', response.code);
+  } else {
+    console.log('There was an error: ', response.code);
   }
-  // Discover event
+}
+
+function pushToFirebase() {
+
+  fb.set({
+    17: {
+      id: 17,
+      location: "Demo",
+      name: 'Mattia'
+    }
+  });
+
+}
+
+function removeFromFirebase() {
+
+  var toRemove = new Firebase(fbUrl + '17');
+  toRemove.remove();
+
+}
+
+// Discover event
 bleacon.on('discover', function(beacon) {
 
   // Our UUID is composed by the uuid + major + minor
@@ -62,17 +86,11 @@ eventEmitter.on('beaconIsNear', function(beacon) {
   // Start situation, nobody is connected
   if (insideBeacons.length === 0) {
 
+    console.log('Mattia is here');
+
     // Add the beacon to the array of people that is inside
     insideBeacons.push(beacon.UUID);
-
-    console.log('Currently we have ', insideBeacons);
-
-    // SEND TO SERVER
-    unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
-      .send()
-      .end(function(response) {
-        checkResponse(response);
-      });
+    pushToFirebase();
 
   }
   // Somebody was already inside since insideBeacons != 0
@@ -80,17 +98,10 @@ eventEmitter.on('beaconIsNear', function(beacon) {
 
     if (isAlreadyInside(beacon) === false) {
 
-      console.log('Currently we have ', insideBeacons);
+      console.log('Mattia is here');
 
-      // Add the beacon to the array of people that is inside
       insideBeacons.push(beacon.UUID);
-
-      // SEND TO SERVER
-      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=1')
-        .send()
-        .end(function(response) {
-          checkResponse(response);
-        });
+      pushToFirebase();
     }
   }
 });
@@ -101,18 +112,15 @@ eventEmitter.on('beaconIsFar', function(beacon) {
   insideBeacons.forEach(function(insideBeacon) {
 
     if (insideBeacon == beacon.UUID) {
+
+      console.log('Mattia is gone');
+
       var index = insideBeacons.indexOf(insideBeacon);
       if (index > -1) {
         insideBeacons.splice(index, 1);
       }
-      console.log('Currently we have ', insideBeacons);
 
-      // SEND TO SERVER
-      unirest.post('http://modusnova.demo.accris.com/?ServiceHandler=HR&OP=MoveEmployee&UUID=' + beacon.UUID + '&Location=' + location + '&Direction=0')
-        .send()
-        .end(function(response) {
-          checkResponse(response);
-        });
+      removeFromFirebase();
     }
   });
 });
